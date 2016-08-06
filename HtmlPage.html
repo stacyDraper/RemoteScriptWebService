@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+	<meta charset="utf-8" />
+</head>
+<body>
+    <input type="text" id="num1" />
+    <input type="text" id="num2" />
+    <br>
+    <input type="button" onclick="CallWcfAjax()" value="Call WCF via AJAX" />
+    Result <span id="result"></span>
+
+</body>
+</html>
+<script type="text/javascript">
+    function CallWcfAjax()
+    {
+        var xmlHttp = new ActiveXObject("Microsoft.XmlHttp");
+
+        var url = "Service1.svc/ExecuteJob/";
+        url = url + "Sum2Integers";
+
+        var body = '{"n1":';
+        body = body + document.getElementById("num1").value + ',"n2":';
+        body = body + document.getElementById("num2").value + '}';
+
+        // Send the HTTP request
+        xmlHttp.open("POST", url, true);
+        xmlHttp.setRequestHeader("Content-type", "application/json");
+        xmlHttp.send(body);
+
+        // Create result handler
+        xmlHttp.onreadystatechange= function X()
+        {
+
+             if(xmlHttp.readyState == 4)
+             {
+                  result.innerText = xmlHttp.responseText;
+             }
+        }
+    }
+</script>
