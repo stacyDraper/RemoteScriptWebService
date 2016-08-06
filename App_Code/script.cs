@@ -2,18 +2,31 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Microsoft.SharePoint.Client;
+using SP = Microsoft.SharePoint.Client;
+
+
 
 /// <summary>
 /// Summary description for script
 /// </summary>
 public class Script
 {
+
     public Script()
     {
-        //
-        // TODO: Add constructor logic here
-        //
+        // popluate values
     }
+    public string ID { get; set; }
+
+    private string title;
+
+    public string Title
+    {
+        get { return title; }
+        set { title = value; }
+    }
+
 
     private string scriptText;
 
@@ -59,7 +72,7 @@ public class Script
             }
         }
     }
-
+    
 
     public enum ScriptTypeNames
     {

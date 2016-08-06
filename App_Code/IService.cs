@@ -12,11 +12,17 @@ public interface IService
 {
 
 
-	//[OperationContract]
-	//CompositeType GetDataUsingDataContract(CompositeType composite);
+    //[OperationContract]
+    //CompositeType GetDataUsingDataContract(CompositeType composite);
+
+    [OperationContract]
+    string ExecuteJobs(string[] ids, string[] siteUrls);
 
     [OperationContract]
     string ExecuteJob(string id, string siteUrl);
+
+    [OperationContract]
+    string setup(string hostUrl);
 
     // TODO: Add your service operations here
 }
