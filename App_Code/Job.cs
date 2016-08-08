@@ -75,6 +75,19 @@ public class Job
         }
     }
 
+    public void updateListItem(int listItemId)
+    {
+
+        ClientContext clientContext = new ClientContext(this.OutputSiteUrl);
+        clientContext.Credentials = Utilities.sp365credential();
+        SP.List list = clientContext.Web.Lists.GetByTitle(this.OutputListName);
+        ListItem listItem = list.GetItemById(listItemId);
+        listItem[this.OutputColumnName] = this.Output.ToString();
+        listItem.Update();
+        clientContext.ExecuteQuery();
+
+    }
+
     public void updateOutputList()
     {
         ClientContext clientContext = new ClientContext(this.OutputSiteUrl);
@@ -88,15 +101,14 @@ public class Job
         ListItemCollection listItems = list.GetItems(camlQuery);
 
         clientContext.Load(listItems);
-        
         clientContext.ExecuteQuery();
 
-        if(listItems.Count >= 1)
+        if (listItems.Count >= 1)
         {
             foreach (ListItem listItem in listItems)
             {
-                listItem[this.OutputColumnName] = this.Output.ToString();
-                listItem.Update();
+
+                updateListItem(listItem.Id);
             }
         }
         else
@@ -107,12 +119,11 @@ public class Job
             listItem[this.OutputColumnName] = this.Output.ToString();
             
             listItem.Update();
+            clientContext.ExecuteQuery();
 
         }
-        //listItem[this.OutputColumnName] = this.Output;
-        //listItem.Update();
 
-        clientContext.ExecuteQuery();
+        
         
     }
 

@@ -16,10 +16,13 @@ public interface IService
     //CompositeType GetDataUsingDataContract(CompositeType composite);
 
     [OperationContract]
-    string ExecuteJobs(string[] ids, string[] siteUrls);
+    string ExecuteJobs(string[] ids, string[] jobSiteUrls);
 
     [OperationContract]
-    string ExecuteJob(string id, string siteUrl);
+    [WebInvoke(Method = "GET",
+            BodyStyle = WebMessageBodyStyle.WrappedRequest,
+            ResponseFormat = WebMessageFormat.Json)]
+    string ExecuteJob(string id, string jobSiteUrl);
 
     [OperationContract]
     string setup(string hostUrl);
