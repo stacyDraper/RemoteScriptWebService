@@ -9,7 +9,6 @@
        <META HTTP-EQUIV="Expires" CONTENT="-1">
 
        <script src="jquery-3.1.0.js"></script>
-
       <title>Running scripts</title>
    </head>
 
@@ -20,14 +19,14 @@
         </div>
         </form>
     </body>
-
+    
     <script type="text/javascript">
         var I = 0;
         var Total = 0;
 
         function start() {
-            var jobSiteUrl = getUrlVars()["jobSiteUrl"];
-            var id = getUrlVars()["id"];
+            var jobSiteUrl = decode(getUrlVars()["jobSiteUrl"]);
+            var id = decode(getUrlVars()["id"]);
 
             if (id == undefined) {
                 $("#Message").text("No id.  There is nothing to run.");
@@ -46,7 +45,7 @@
             else {
                 executeJob(id, jobSiteUrl);
             }
-            $("#Message").html("Working on it...<br /> You can close this window and view the status on the jobs list.");
+            $("#Message").html("Working on it...");
         }
 
         function executeJob(id, siteUrl) {
@@ -68,7 +67,7 @@
 
         function changeMessage() {
             if (I == Total) {
-                $("#Message").text("Completed...");
+                $("#Message").html("Completed... <BR /><BR /><BR /><smaller>If you see this message the next time a script is run it is be cause the browser settings are set to cache this page to change go to Tools >  Internet Options.  Click the Browsing History \"Settings\" button.  Check for newer versions of stored pages: and select \"Everytime I visit the page\".</smaller>");
             }
         }
         
@@ -82,8 +81,18 @@
             }
             return vars;
         }
+
+        function decode(stringToDecode) {
+            if (stringToDecode == undefined)
+                return;
+            stringToDecode = decodeURIComponent((stringToDecode).replace(/\+/g, " "));
+
+            return stringToDecode
+        }
+
  
         $(document).ready(start());
+
     </script>
 </html>
 
