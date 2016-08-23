@@ -71,7 +71,7 @@ public class Execute
         job.OutputSiteUrl = collListItem[0]["OutputSiteUrl"].ToString();
         job.OutputListName = collListItem[0]["OutputListName"].ToString();
         job.OutputColumnName = collListItem[0]["OutputColumn"].ToString();
-        job.Script = getScript(collListItem[0]["Script"].ToString(), siteUrl);
+        job.Script = getScript(((FieldLookupValue)collListItem[0]["Script"]).LookupId.ToString(), siteUrl);
 
 
         return job;
@@ -158,15 +158,16 @@ public class Execute
 
     private string runPowerShellScript(Job job)
     {
-        Collection<PSObject> results;
-
+        Collection<PSObject> results = null; 
         WSManConnectionInfo connectionInfo = null;
 
-        connectionInfo = new WSManConnectionInfo(new Uri("http://" + job.IP  + ":5985"));
+        connectionInfo = new WSManConnectionInfo(new Uri("http://" + job.IP + ":5985"));
 
         connectionInfo.OperationTimeout = 4 * 60 * 1000;
         connectionInfo.OpenTimeout = 1 * 60 * 1000;
         connectionInfo.AuthenticationMechanism = AuthenticationMechanism.NegotiateWithImplicitCredential;
+        StringBuilder errorMessage = new StringBuilder();
+
 
         using (Runspace remoteRunspace = RunspaceFactory.CreateRunspace(connectionInfo))
         {
@@ -177,19 +178,32 @@ public class Execute
             pipeline.Commands.AddScript(job.Script.ScriptText);
             pipeline.Commands.Add("Out-String");
 
-            results = pipeline.Invoke();
+            try
+            {
+                results = pipeline.Invoke();
+            }
+            catch (Exception e)
+            {
+                errorMessage.Append(e.Message);
+            }
+            finally
+            {
+                remoteRunspace.Close();
+            }
+       }
 
-            remoteRunspace.Close();
-        }
 
-        // convert the script result into a single string
-        StringBuilder stringBuilder = new StringBuilder();
-        foreach (PSObject obj in results)
+
+        if (string.IsNullOrEmpty(errorMessage.ToString()))
         {
-            stringBuilder.AppendLine(obj.ToString());
+            // convert the script result into a single string
+            foreach (PSObject obj in results)
+            {
+                errorMessage.AppendLine(obj.ToString());
+            }
         }
         
-        job.Output = stringBuilder.ToString();
+        job.Output = errorMessage.ToString();
 
         return job.Output;
 

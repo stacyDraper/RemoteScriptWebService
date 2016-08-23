@@ -77,7 +77,6 @@ public class Job
 
     public void updateListItem(int listItemId)
     {
-
         ClientContext clientContext = new ClientContext(this.OutputSiteUrl);
         clientContext.Credentials = Utilities.sp365credential();
         SP.List list = clientContext.Web.Lists.GetByTitle(this.OutputListName);
@@ -107,8 +106,17 @@ public class Job
         {
             foreach (ListItem listItem in listItems)
             {
-
-                updateListItem(listItem.Id);
+                //for save conflict where there is the same column being updated on the same row.
+                //my test data had duplicates but not triplicates - hard to test because it doesn't always fail
+                //TODO: Error handling for save conflicts.
+                try
+                {
+                    updateListItem(listItem.Id);
+                }
+                catch
+                {
+                    updateListItem(listItem.Id);
+                }
             }
         }
         else
