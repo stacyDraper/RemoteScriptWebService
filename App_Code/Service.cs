@@ -34,4 +34,11 @@ public class Service : IService
         return retValue;
     }
 
+    public string ExecuteBatch(string id, string hardwareSiteUrl, string jobSiteUrl, string batch)
+    {
+        Execute execute = new Execute();
+        string retValue = execute.Batch(id, hardwareSiteUrl, jobSiteUrl, batch);
+        return retValue;
+    }
+
 }

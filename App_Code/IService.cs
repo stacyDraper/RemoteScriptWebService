@@ -25,6 +25,12 @@ public interface IService
     string ExecuteJob(string id, string jobSiteUrl);
 
     [OperationContract]
+    [WebInvoke(Method = "GET",
+            BodyStyle = WebMessageBodyStyle.WrappedRequest,
+            ResponseFormat = WebMessageFormat.Json)]
+    string ExecuteBatch(string id, string hardwareSiteUrl, string jobSiteUrl, string batch);
+
+    [OperationContract]
     string setup(string hostUrl);
 
     // TODO: Add your service operations here

@@ -23,6 +23,31 @@ public class Execute
         //
     }
 
+    public string Batch(string id, string hardwareSiteUrl, string jobSiteUrl, string batch)
+    {
+        string result = "";
+        Hardware hardware = getHardware(id, hardwareSiteUrl);
+
+
+        List<Job> jobs = getJobs(hardware.IP, jobSiteUrl, batch);
+        foreach (Job job in jobs)
+        {
+            //string server
+            job.Start = DateTime.Now;
+
+            job.IP = hardware.IP;
+
+            result = RunScript(job);
+
+            job.updateOutputList();
+
+            job.Finish = DateTime.Now;
+            
+        }
+
+        return result;
+    }
+
     public string Job(string id, string jobSiteUrl)
     {
 
@@ -39,6 +64,90 @@ public class Execute
 
         return result;
 
+    }
+
+    private Hardware getHardware(string id, string siteUrl)
+    {
+        Hardware hardware = new Hardware();
+        hardware.HardwareListSiteUrl = siteUrl;
+        hardware.ID = id;
+
+        ClientContext clientContext = new ClientContext(siteUrl);
+        clientContext.Credentials = Utilities.sp365credential();
+
+        SP.List oList = clientContext.Web.Lists.GetByTitle("Hardware");
+
+        CamlQuery camlQuery = new CamlQuery();
+        camlQuery.ViewXml = "<View><Query><Where><Eq><FieldRef Name='ID' /><Value Type='Counter'>" + id + "</Value></Eq></Where></Query>" +
+            "<ViewFields><FieldRef Name='Title' />" +
+            "</ViewFields><QueryOptions /></View>";
+        ListItemCollection collListItem = oList.GetItems(camlQuery);
+
+        clientContext.Load(collListItem);
+
+        clientContext.ExecuteQuery();
+
+
+        hardware.IP = collListItem[0]["Title"].ToString();
+        
+        return hardware;
+    }
+
+    private List<Job> getJobs(string IP, string siteUrl, string batch)
+    {
+        var jobs = new List<Job>();
+        string list = "Hardware";
+
+        ClientContext clientContext = new ClientContext(siteUrl);
+        clientContext.Credentials = Utilities.sp365credential();
+
+        SP.List oList = clientContext.Web.Lists.GetByTitle("Jobs");
+
+        CamlQuery camlQuery = new CamlQuery();
+        camlQuery.ViewXml = "<View><Query>" +
+            "<Where>" +
+            "<And>" +
+            "<Eq>" +
+            "<FieldRef Name='OutputListName' />" +
+            "<Value Type='Text' >" + list + "</Value>" +
+            "</Eq>" +
+            "<Eq>" +
+            "<FieldRef Name='Batch' />" +
+            "<Value Type='Choice'>"+ batch +"</Value>" +
+            "</Eq>" +
+            "</And>" +
+            "</Where>" +
+            "</Query>" +
+            "<ViewFields><FieldRef Name='Hardware' />" +
+            "<FieldRef Name='ID' />" +
+            "<FieldRef Name='Script' />" +
+            "<FieldRef Name='OutputSiteUrl' />" +
+            "<FieldRef Name='OutputListName' />" +
+            "<FieldRef Name='OutputColumn' />" +
+            "</ViewFields><QueryOptions /></View>";
+        ListItemCollection collListItem = oList.GetItems(camlQuery);
+
+        clientContext.Load(collListItem);
+
+        clientContext.ExecuteQuery();
+
+        for (int i = 0; i < collListItem.Count; i++)
+        {
+
+
+            Job job = new Job();
+            job.JobListSiteUrl = siteUrl;
+            job.ID = collListItem[i]["ID"].ToString();
+            job.IP = collListItem[i]["Hardware"].ToString();
+            job.OutputSiteUrl = collListItem[i]["OutputSiteUrl"].ToString();
+            job.OutputListName = collListItem[i]["OutputListName"].ToString();
+            job.OutputColumnName = collListItem[i]["OutputColumn"].ToString();
+            job.Script = getScript(((FieldLookupValue)collListItem[i]["Script"]).LookupId.ToString(), siteUrl);
+
+            jobs.Add(job);
+        }
+
+        return jobs;
     }
 
     private Job getJob(string id, string siteUrl)
@@ -171,15 +280,16 @@ public class Execute
 
         using (Runspace remoteRunspace = RunspaceFactory.CreateRunspace(connectionInfo))
         {
+            try
+            {
 
-            remoteRunspace.Open();
+                remoteRunspace.Open();
 
             Pipeline pipeline = remoteRunspace.CreatePipeline();
             pipeline.Commands.AddScript(job.Script.ScriptText);
             pipeline.Commands.Add("Out-String");
 
-            try
-            {
+           
                 results = pipeline.Invoke();
             }
             catch (Exception e)
