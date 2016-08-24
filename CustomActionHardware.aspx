@@ -7,35 +7,30 @@
        <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
        <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
        <META HTTP-EQUIV="Expires" CONTENT="-1">
-
+       <link rel="stylesheet" type="text/css" href="/corev15.css"/>
        <script src="jquery-3.1.0.js"></script>
       <title>Running scripts</title>
    </head>
 
     <body>
         <form id="form1" runat="server">
-        <div id="Message">
-            <div id="buttons">
+        <div id="Message" style="text-align:center">
+            <div id="buttons" style="text-align: left;">
                 
-                <asp:RadioButtonList ID="myChoices" runat="server"></asp:RadioButtonList>
+                <asp:RadioButtonList ID="myChoices" runat="server" ></asp:RadioButtonList>
                 </div>
-            <button id="startButton" onclick="start()">Start</button>
+            <button id="startButton" onclick="start()" disabled="disabled">Start</button>
         </div>
         </form>
     </body>
-    <script 
- type="text/javascript" 
- src="http://ajax.aspnetcdn.com/ajax/4.0/1/MicrosoftAjax.js">
-</script>
-<script type="text/javascript" src="/sp.runtime.js"></script>
-<script type="text/javascript" src="/sp.js"></script>
+
     <script type="text/javascript">
         var I = 0;
         var Total = 0;
         var Batch = "";
 
         function enableStartButton() {
-            $("startButton").prop('disabled', false);
+            $("#startButton").prop('disabled', false);
         }
 
         function start() {
@@ -65,7 +60,10 @@
             else {
                 executeBatch(id, hardwareSiteUrl, jobSiteUrl);
             }
-            $("#Message").html("Working on it...");
+            
+            var processing = '<div style="padding: 10px;"><div class="ms-dlgLoadingTextDiv ms-alignCenter"><span style="padding-top: 6px; padding-right: 10px;"><img src="/images/gears_anv4.gif?rev=44"></span><span class="ms-core-pageTitle ms-accentText">Processing...</span></div><div class="ms-textXLarge ms-alignCenter">Please wait while request is in progress...</div></div>';
+
+            $("#Message").html(processing);
         }
 
         function executeBatch(id, HardwareSiteUrl, JobSiteUrl) {
@@ -105,7 +103,10 @@
 
         function changeMessage() {
             if (I == Total) {
-                $("#Message").html("Completed... <BR /><BR /><BR /><smaller>If you see this message the next time a script is run it is be cause the browser settings are set to cache this page to change go to Tools >  Internet Options.  Click the Browsing History \"Settings\" button.  Check for newer versions of stored pages: and select \"Everytime I visit the page\".</smaller>");
+                var completed = '<div style="padding: 10px;"><div class="ms-dlgLoadingTextDiv ms-alignCenter"><span class="ms-core-pageTitle ms-accentText">Completed...</span></div><div class="ms-textXLarge ms-alignCenter">The lists are updated.</div></div>';
+                $("#Message").html(completed);
+                var ChachingMessage = "Completed... <BR /><BR /><BR /><smaller>If you see this message the next time a script is run it is be cause the browser settings are set to cache this page to change go to Tools >  Internet Options.  Click the Browsing History \"Settings\" button.  Check for newer versions of stored pages: and select \"Everytime I visit the page\".</smaller>";
+                var onlySecureContentIsDisplayedMessage = "Tools>>>Internet options>>>Security tab, Custom level>>>Scroll to: Display mixed content>>>Enable>>>OK"
             }
         }
         
@@ -128,52 +129,15 @@
             return stringToDecode
         }
 
-        function getBatchOptions() {
-            alert()
-            //SP.SOD.executeFunc('sp.js', 'SP.ClientContext', sharePointReady);
+        $("#myChoices").on("click", function () {
+            enableStartButton();
+        });
 
-            // Setup context and load current web
-            var context = new SP.ClientContext("https://coupledtech.sharepoint.com/sites/Dev");
-            
-            var web = context.get_web();
-            context.load();
-
-            // Get task list
-            var taskList = web.get_lists().getByTitle("Jobs");
-
-            // Get Priority field (choice field)
-            var priorityField = context.castTo(taskList.get_fields().getByInternalNameOrTitle("Batch"),
-                                               SP.FieldChoice);
-
-            // Load the field
-            context.load(priorityField);
-
-            // Call server
-            context.executeQueryAsync(Function.createDelegate(this, this.onSuccessMethod),
-                                      Function.createDelegate(this, this.onFailureMethod));
-
-            function onSuccessMethod(sender, args) {
-                // Get string arry of possible choices (but NOT fill-in choices)
-                var choices = priorityField.get_choices();
-                var buttons = '';
-                $(choices).each(function (i) {
-                    buttons += '<input type="radio" name="group1" value="' + allButtons[i] + '">' + allButtons[i] + '<br>'
-                });
-
-                alert("Choices: (" + choices.length + ") - " + choices.join(", "));
-            }
-
-            function onFailureMethod(sender, args) {
-                alert("oh oh!");
-            }
-
-        }
-
-        //$(document).ready(getBatchOptions());
-
- 
 
     </script>
+
+
+
 </html>
 
 

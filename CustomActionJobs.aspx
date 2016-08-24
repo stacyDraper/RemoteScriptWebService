@@ -7,7 +7,7 @@
        <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE">
        <META HTTP-EQUIV="Pragma" CONTENT="no-cache">
        <META HTTP-EQUIV="Expires" CONTENT="-1">
-
+       <link rel="stylesheet" type="text/css" href="/corev15.css"/>
        <script src="jquery-3.1.0.js"></script>
       <title>Running scripts</title>
    </head>
@@ -45,7 +45,9 @@
             else {
                 executeJob(id, jobSiteUrl);
             }
-            $("#Message").html("Working on it...");
+
+            var processing = '<div style="padding: 10px;"><div class="ms-dlgLoadingTextDiv ms-alignCenter"><span style="padding-top: 6px; padding-right: 10px;"><img src="/images/gears_anv4.gif?rev=44"></span><span class="ms-core-pageTitle ms-accentText">Processing...</span></div><div class="ms-textXLarge ms-alignCenter">Please wait while request is in progress...</div></div>';
+            $("#Message").html(processing);
         }
 
         function executeJob(id, siteUrl) {
@@ -67,7 +69,8 @@
 
         function changeMessage() {
             if (I == Total) {
-                $("#Message").html("Completed... <BR /><BR /><BR /><smaller>If you see this message the next time a script is run it is be cause the browser settings are set to cache this page to change go to Tools >  Internet Options.  Click the Browsing History \"Settings\" button.  Check for newer versions of stored pages: and select \"Everytime I visit the page\".</smaller>");
+                var completed = '<div style="padding: 10px;"><div class="ms-dlgLoadingTextDiv ms-alignCenter"><span class="ms-core-pageTitle ms-accentText">Completed...</span></div><div class="ms-textXLarge ms-alignCenter">The lists are updated.</div></div>';
+                $("#Message").html(completed);
             }
         }
         

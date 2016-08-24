@@ -28,11 +28,11 @@ public class Job
             SP.List list = clientContext.Web.Lists.GetByTitle("Jobs");
             ListItem oListItem = list.GetItemById(this.ID);
 
+            oListItem["LastRunAgainst"] = this.IP;
             oListItem["LastStarted"] = this.Start;
             oListItem["LastFinished"] = null;
             oListItem["LastDuration"] = "";
-
-
+            
             oListItem.Update();
 
             clientContext.ExecuteQuery();

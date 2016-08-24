@@ -272,8 +272,8 @@ public class Execute
 
         connectionInfo = new WSManConnectionInfo(new Uri("http://" + job.IP + ":5985"));
 
-        connectionInfo.OperationTimeout = 4 * 60 * 1000;
-        connectionInfo.OpenTimeout = 1 * 60 * 1000;
+        connectionInfo.OperationTimeout = 4 * 60 * 1000;  // 4 minutes
+        connectionInfo.OpenTimeout = 1 * 60 * 1000;  // 1 minute
         connectionInfo.AuthenticationMechanism = AuthenticationMechanism.NegotiateWithImplicitCredential;
         StringBuilder errorMessage = new StringBuilder();
 
